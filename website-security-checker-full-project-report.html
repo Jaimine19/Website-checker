@@ -1,0 +1,547 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Website Security Checker — Project Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 48px 20px 64px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+
+  /* ── Cover ── */
+  .cover {
+    text-align: center;
+    padding: 36px 24px 32px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f7f8fa;
+    margin-bottom: 36px;
+  }
+  .cover .lock { font-size: 2.8rem; margin-bottom: 10px; }
+  .cover h1 { font-size: 1.7rem; font-weight: 800; color: #1f2328; line-height: 1.25; }
+  .cover .subtitle { color: #57606a; font-size: 0.92rem; margin-top: 6px; }
+  .cover-meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .cover-meta-item { font-size: 0.82rem; color: #57606a; }
+  .cover-meta-item strong { display: block; color: #1f2328; font-size: 0.88rem; }
+
+  /* ── TOC ── */
+  .toc {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+  }
+  .toc h4 { font-size: 0.85rem; font-weight: 700; color: #57606a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .toc ol { padding-left: 18px; }
+  .toc li { font-size: 0.85rem; color: #3b82d4; margin-bottom: 3px; }
+
+  /* ── Headings ── */
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2328;
+    margin: 36px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  h2 .sec-num { color: #57606a; font-weight: 400; margin-right: 6px; font-size: 0.9rem; }
+  h3 { font-size: 0.9rem; font-weight: 700; color: #1f2328; margin: 18px 0 6px; }
+
+  /* ── Body text ── */
+  p { margin-bottom: 10px; }
+  ul, ol { padding-left: 22px; margin-bottom: 10px; }
+  li { margin-bottom: 4px; }
+
+  /* ── Abstract box ── */
+  .abstract-box {
+    background: #f7f8fa;
+    border-left: 4px solid #3b82d4;
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    margin: 12px 0 20px;
+    font-size: 0.88rem;
+    color: #1f2328;
+    line-height: 1.75;
+  }
+  .abstract-box em { color: #57606a; font-style: normal; font-size: 0.78rem; display: block; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 0.83rem; }
+  thead th {
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    padding: 7px 10px; text-align: left; font-weight: 700; color: #1f2328;
+  }
+  tbody td { border: 1px solid #e5e7eb; padding: 7px 10px; vertical-align: top; }
+  tbody tr:nth-child(even) td { background: #f7f8fa; }
+
+  /* ── Code ── */
+  code {
+    background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 3px;
+    padding: 1px 5px; font-size: 0.8rem;
+    font-family: "Consolas", "Menlo", monospace; color: #7c5cd8;
+  }
+  .code-block {
+    background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 12px 16px; font-family: "Consolas","Menlo",monospace;
+    font-size: 0.8rem; color: #1f2328; margin: 10px 0 16px; line-height: 1.7;
+  }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block; padding: 1px 7px; border-radius: 4px;
+    font-size: 0.74rem; font-weight: 600;
+  }
+  .bp { background:#dcfce7; color:#166534; }
+  .bw { background:#fef9c3; color:#854d0e; }
+  .bf { background:#fee2e2; color:#991b1b; }
+  .bi { background:#dbeafe; color:#1e40af; }
+
+  /* ── Callout ── */
+  .callout {
+    border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 11px 15px; margin: 12px 0;
+    font-size: 0.84rem; background: #f7f8fa;
+  }
+  .callout strong { color: #3b82d4; }
+
+  /* ── Grade pill row ── */
+  .grade-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 16px; }
+  .grade-pill {
+    border-radius: 6px; padding: 6px 14px; font-weight: 700;
+    font-size: 0.85rem; border: 1px solid #e5e7eb;
+  }
+  .ga { background:#dcfce7; color:#166534; }
+  .gb { background:#d9f99d; color:#3f6212; }
+  .gc { background:#fef9c3; color:#854d0e; }
+  .gd { background:#ffedd5; color:#9a3412; }
+  .gf { background:#fee2e2; color:#991b1b; }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 28px 0; }
+
+  /* ── Footer ── */
+  .report-footer {
+    margin-top: 52px; padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center; font-size: 0.74rem; color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <div class="cover">
+    <div class="lock">🔒</div>
+    <h1>Website Security Checker</h1>
+    <div class="subtitle">A Real-Time Passive Web Security Auditing Tool</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>Author</strong>Jaimine</div>
+      <div class="cover-meta-item"><strong>Type</strong>Educational / Security Tool</div>
+      <div class="cover-meta-item"><strong>Language</strong>Python 3.12</div>
+      <div class="cover-meta-item"><strong>Framework</strong>Streamlit 1.66.1</div>
+      <div class="cover-meta-item"><strong>Lines of Code</strong>~1,060</div>
+      <div class="cover-meta-item"><strong>Checks</strong>7 passive security checks</div>
+    </div>
+  </div>
+
+  
+  <div class="toc">
+    <h4>Table of Contents</h4>
+    <ol>
+      <li>Abstract</li>
+      <li>Introduction</li>
+      <li>Objectives</li>
+      <li>Scope &amp; Limitations</li>
+      <li>Technology Stack</li>
+      <li>System Architecture</li>
+      <li>Security Checks &amp; Scoring Methodology</li>
+      <li>Safety &amp; Abuse-Prevention Design</li>
+      <li>User Interface &amp; Features</li>
+      <li>Key Modules Reference</li>
+      <li>How to Run</li>
+      <li>Results &amp; Discussion</li>
+      <li>Conclusion &amp; Future Work</li>
+      <li>References</li>
+    </ol>
+  </div>
+
+  
+  <h2><span class="sec-num">1.</span> Abstract</h2>
+  <div class="abstract-box">
+    <em>Abstract</em>
+    Web security misconfiguration remains one of the most prevalent and preventable categories of vulnerability
+    affecting public-facing websites. This project presents <strong>Website Security Checker</strong>, a
+    browser-based tool built with Python and Streamlit that performs a real-time, fully passive audit of any
+    publicly accessible website and assigns it an A–F security grade out of 100 points. The tool evaluates
+    seven industry-standard security indicators — HTTPS adoption, HTTP-to-HTTPS redirect enforcement, SSL/TLS
+    certificate validity, and the presence of four critical HTTP security response headers (HSTS, CSP,
+    X-Frame-Options, and X-Content-Type-Options). All checks are non-intrusive: no exploits, fuzzing, or
+    authentication probing are attempted. The system incorporates multiple server-side safety controls,
+    including SSRF protection, port allowlisting, per-hop redirect revalidation, network timeouts, and
+    result caching, making it suitable for public deployment. Results are presented via a custom dark-themed
+    UI with shareable URLs, downloadable plain-text reports, and a side-by-side comparison mode for two
+    websites. The tool serves as both a diagnostic utility for developers and site owners and an educational
+    resource for understanding foundational web security practices.
+  </div>
+
+  
+  <h2><span class="sec-num">2.</span> Introduction</h2>
+  <p>
+    The web continues to be the primary surface through which users interact with services, commerce, and
+    information. Despite widespread awareness of security best practices, a significant proportion of websites
+    still fail to implement basic protections — leaving users exposed to network eavesdropping, certificate
+    spoofing, cross-site scripting, and clickjacking attacks.
+  </p>
+  <p>
+    Most professional security scanning tools are either expensive, require installation, or demand technical
+    expertise to interpret. There is a clear need for a simple, zero-friction tool that any developer, student,
+    or website owner can use to instantly understand the security posture of a site without any setup or
+    specialist knowledge.
+  </p>
+  <p>
+    This project addresses that need by delivering a self-contained Streamlit web application that accepts a
+    URL, performs a set of passive checks within seconds, and presents findings as a scored, graded, plain-English
+    report. The application is accessible from any browser, requires no account or login, and is safe to run
+    on a public server.
+  </p>
+
+  
+  <h2><span class="sec-num">3.</span> Objectives</h2>
+  <ul>
+    <li>Provide instant, zero-setup security grading for any public website.</li>
+    <li>Evaluate seven foundational security checks covering transport security, certificate health, and HTTP security headers.</li>
+    <li>Present results in plain English with clear explanations of why each check matters.</li>
+    <li>Support side-by-side comparison of two websites to aid competitive analysis and benchmarking.</li>
+    <li>Generate shareable, bookmarkable result URLs and downloadable plain-text reports.</li>
+    <li>Ensure the tool itself cannot be used as an attack vector (SSRF protection, port restrictions, rate limiting).</li>
+    <li>Serve as an educational resource that helps developers understand and remediate common security gaps.</li>
+  </ul>
+
+  
+  <h2><span class="sec-num">4.</span> Scope &amp; Limitations</h2>
+  <h3>In Scope</h3>
+  <ul>
+    <li>Passive, read-only HTTP/HTTPS requests to publicly accessible websites</li>
+    <li>SSL/TLS certificate inspection (validity, expiry, issuer) via direct TLS handshake</li>
+    <li>HTTP response header analysis for four security headers</li>
+    <li>HTTPS adoption and HTTP-to-HTTPS redirect detection</li>
+  </ul>
+  <h3>Out of Scope</h3>
+  <ul>
+    <li>Authentication-gated pages or pages requiring session cookies</li>
+    <li>Vulnerability scanning, fuzzing, or exploit testing of any kind</li>
+    <li>Application-layer checks (SQL injection, XSS payloads, CSRF tokens)</li>
+    <li>DNS security (DNSSEC), email security (SPF/DKIM/DMARC), or server configuration audits</li>
+    <li>Internal / private network hosts (blocked by design)</li>
+  </ul>
+  <div class="callout">
+    <strong>Note:</strong> A grade of A does not guarantee a site is fully secure. A grade of F does not mean
+    a site has been compromised. This tool measures a specific, well-defined subset of security hygiene.
+  </div>
+
+  
+  <h2><span class="sec-num">5.</span> Technology Stack</h2>
+  <table>
+    <thead><tr><th>Component</th><th>Package / Version</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Web Framework</td><td><code>streamlit 1.66.1</code></td><td>UI rendering, session state, caching, download buttons, tab layout</td></tr>
+      <tr><td>HTTP Client</td><td><code>requests</code></td><td>Manual redirect-following GET requests to scanned sites</td></tr>
+      <tr><td>TLS Inspection</td><td><code>ssl</code> (stdlib)</td><td>Direct TLS handshake on port 443 to extract certificate metadata</td></tr>
+      <tr><td>DNS / IP Validation</td><td><code>socket</code>, <code>ipaddress</code> (stdlib)</td><td>Hostname resolution and SSRF protection (public IP enforcement)</td></tr>
+      <tr><td>Data Handling</td><td><code>pandas</code></td><td>Tabular data for comparison view rendering</td></tr>
+      <tr><td>PDF Export</td><td><code>reportlab</code></td><td>PDF generation for downloadable security reports</td></tr>
+      <tr><td>Runtime</td><td>Python 3.12</td><td>Application runtime and standard library</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2><span class="sec-num">6.</span> System Architecture</h2>
+  <p>The application is a single-file Streamlit app (<code>code.py</code>, ~1,060 lines) structured into five
+  clearly separated logical layers:</p>
+  <table>
+    <thead><tr><th>Layer</th><th>Components</th><th>Responsibility</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Types &amp; Config</strong></td>
+        <td><code>CertResult</code>, constants</td>
+        <td>TypedDict for certificate results; timeout, cache, redirect, and header registry settings</td>
+      </tr>
+      <tr>
+        <td><strong>Safety Guards</strong></td>
+        <td><code>resolve_public_ips()</code>, <code>validate_url()</code></td>
+        <td>Block SSRF, private IPs, non-standard ports, and invalid schemes before any network call</td>
+      </tr>
+      <tr>
+        <td><strong>Scan Engine</strong></td>
+        <td><code>fetch()</code>, <code>check_http_redirect()</code>, <code>check_certificate()</code></td>
+        <td>Execute individual network probes and return structured results</td>
+      </tr>
+      <tr>
+        <td><strong>Scoring Engine</strong></td>
+        <td><code>build_checks()</code>, <code>make_check()</code>, <code>grade_for()</code>, <code>run_scan()</code></td>
+        <td>Aggregate probe results into scored check dicts, compute total score and letter grade; cached</td>
+      </tr>
+      <tr>
+        <td><strong>UI Layer</strong></td>
+        <td><code>APP_CSS</code>, <code>show_intro()</code>, <code>show_results()</code>, <code>show_comparison()</code>, <code>main()</code></td>
+        <td>Custom CSS theming, hero banner, tab routing, check card rendering, report download</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Data flows as follows: <code>main()</code> → <code>run_scan()</code> → <code>fetch()</code> + <code>check_http_redirect()</code> + <code>check_certificate()</code> → <code>build_checks()</code> → <code>grade_for()</code> → <code>show_results()</code>.</p>
+
+  
+  <h2><span class="sec-num">7.</span> Security Checks &amp; Scoring Methodology</h2>
+  <p>
+    Seven checks are run on every scan. Each check produces a <span class="badge bp">pass</span>,
+    <span class="badge bw">warn</span>, or <span class="badge bf">fail</span> status and contributes
+    a fixed number of points to the total score out of 100.
+  </p>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Check</th><th>Max Pts</th><th>Pass Condition</th><th>Security Rationale</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td><td>Uses HTTPS</td><td>20</td>
+        <td>Final URL scheme is <code>https://</code></td>
+        <td>Encrypts all traffic; prevents eavesdropping, injection, and man-in-the-middle attacks</td>
+      </tr>
+      <tr>
+        <td>2</td><td>HTTP → HTTPS Redirect</td><td>10</td>
+        <td><code>http://</code> request returns 3xx redirect to <code>https://</code></td>
+        <td>Ensures visitors who type plain HTTP are automatically protected</td>
+      </tr>
+      <tr>
+        <td>3</td><td>Valid SSL Certificate</td><td>20</td>
+        <td>Trusted cert, ≥15 days to expiry (10 pts if expiring soon)</td>
+        <td>Expired or untrusted certs break browser trust and expose users to interception</td>
+      </tr>
+      <tr>
+        <td>4</td><td>Strict-Transport-Security (HSTS)</td><td>15</td>
+        <td><code>strict-transport-security</code> header present</td>
+        <td>Instructs browsers to always use HTTPS for the domain; prevents SSL-stripping attacks</td>
+      </tr>
+      <tr>
+        <td>5</td><td>Content-Security-Policy (CSP)</td><td>15</td>
+        <td><code>content-security-policy</code> header present</td>
+        <td>Controls which scripts and resources may load; primary XSS defence</td>
+      </tr>
+      <tr>
+        <td>6</td><td>X-Frame-Options</td><td>10</td>
+        <td>Header present, <em>or</em> CSP contains <code>frame-ancestors</code></td>
+        <td>Prevents embedding the page in a foreign iframe (clickjacking)</td>
+      </tr>
+      <tr>
+        <td>7</td><td>X-Content-Type-Options</td><td>10</td>
+        <td><code>x-content-type-options</code> header present</td>
+        <td>Disables MIME-type sniffing; prevents browsers executing misidentified content</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Grade Scale</h3>
+  <div class="grade-row">
+    <div class="grade-pill ga">A  ·  90 – 100</div>
+    <div class="grade-pill gb">B  ·  75 – 89</div>
+    <div class="grade-pill gc">C  ·  60 – 74</div>
+    <div class="grade-pill gd">D  ·  40 – 59</div>
+    <div class="grade-pill gf">F  ·  0 – 39</div>
+  </div>
+
+  
+  <h2><span class="sec-num">8.</span> Safety &amp; Abuse-Prevention Design</h2>
+  <p>
+    Because the application makes outbound HTTP/S requests on behalf of users, it is itself a potential vector
+    for Server-Side Request Forgery (SSRF) and abuse. The following controls are implemented:
+  </p>
+  <table>
+    <thead><tr><th>Threat</th><th>Control</th><th>Implementation Detail</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>SSRF / internal network access</td>
+        <td>All resolved IPs verified as globally routable</td>
+        <td><code>resolve_public_ips()</code> uses <code>ipaddress.ip_address.is_global</code> to reject RFC 1918, loopback, link-local, and multicast addresses</td>
+      </tr>
+      <tr>
+        <td>Non-standard port abuse</td>
+        <td>Port allowlist: 80 and 443 only</td>
+        <td><code>validate_url()</code> raises <code>ScanError</code> for any other port value</td>
+      </tr>
+      <tr>
+        <td>Malicious redirect chains</td>
+        <td>Every redirect hop re-validated</td>
+        <td><code>fetch()</code> calls <code>validate_url()</code> on every <code>Location</code> header before following</td>
+      </tr>
+      <tr>
+        <td>Infinite redirect loops</td>
+        <td>Hard cap of 5 redirects</td>
+        <td><code>MAX_REDIRECTS = 5</code>; loop raises <code>ScanError</code> after the limit</td>
+      </tr>
+      <tr>
+        <td>Slow / hanging hosts</td>
+        <td>6-second network timeout</td>
+        <td><code>TIMEOUT = 6</code> passed to all <code>requests.get()</code> and <code>socket.create_connection()</code> calls</td>
+      </tr>
+      <tr>
+        <td>Scan hammering / DoS from UI</td>
+        <td>3-second cooldown between scans</td>
+        <td><code>COOLDOWN_SECONDS = 3</code> checked against <code>st.session_state["last_scan"]</code></td>
+      </tr>
+      <tr>
+        <td>Repeated identical requests</td>
+        <td>120-second result cache</td>
+        <td><code>@st.cache_data(ttl=120)</code> on <code>run_scan()</code>; same input served from cache</td>
+      </tr>
+    </tbody>
+  </table>
+
+  
+  <h2><span class="sec-num">9.</span> User Interface &amp; Features</h2>
+  <h3>Theme &amp; Styling</h3>
+  <p>
+    The UI uses a custom dark cybersecurity theme (~340 lines of embedded CSS). The hero banner features a
+    gradient dark background, a shimmer-animated gradient title, and a stats strip showing checks run, max
+    score, grade scale, and attacks sent. The Inter and JetBrains Mono fonts are loaded for display and
+    code elements respectively.
+  </p>
+  <h3>Single-Site Scan Tab</h3>
+  <ul>
+    <li>Text input accepts bare hostnames (e.g. <code>github.com</code>) or full URLs</li>
+    <li>On submit: spinner shown, <code>run_scan()</code> called, result stored in session state</li>
+    <li>Result renders a grade badge, score bar, per-check cards (✅ / ⚠️ / ❌), and a download button</li>
+    <li>Successful scans update the browser URL with <code>?site=&lt;host&gt;</code> for shareability</li>
+  </ul>
+  <h3>Compare Two Sites Tab</h3>
+  <ul>
+    <li>Two text inputs side-by-side; both sites scanned in parallel spinners</li>
+    <li>Results rendered as a detailed comparison table with per-check winner highlighting</li>
+    <li>Downloadable side-by-side comparison report in plain text</li>
+  </ul>
+  <h3>Sidebar</h3>
+  <ul>
+    <li>Grade scale reference table always visible</li>
+    <li>Disclaimer that only passive checks are performed</li>
+  </ul>
+  <h3>Downloadable Reports</h3>
+  <p>
+    Both scan modes offer a plain-text download button. The single-site report lists every check with
+    status, points, and detail. The comparison report formats both sites in aligned columns for easy
+    side-by-side reading.
+  </p>
+
+  
+  <h2><span class="sec-num">10.</span> Key Modules Reference</h2>
+  <table>
+    <thead><tr><th>Function / Symbol</th><th>Lines</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>CertResult</code></td><td>38–44</td><td>TypedDict for SSL certificate check return value</td></tr>
+      <tr><td><code>SECURITY_HEADERS</code></td><td>61–86</td><td>Registry of 4 header checks with names, points, and rationale</td></tr>
+      <tr><td><code>ScanError</code></td><td>89</td><td>User-facing exception for explainable failures</td></tr>
+      <tr><td><code>resolve_public_ips(host)</code></td><td>96–116</td><td>DNS resolution + private IP blocking</td></tr>
+      <tr><td><code>validate_url(url)</code></td><td>119–130</td><td>Scheme, port, and host pre-validation gate</td></tr>
+      <tr><td><code>fetch(url)</code></td><td>136–158</td><td>Manual redirect-following GET with per-hop validation</td></tr>
+      <tr><td><code>check_http_redirect(host)</code></td><td>161–178</td><td>Tests whether HTTP 3xx leads to HTTPS</td></tr>
+      <tr><td><code>check_certificate(host)</code></td><td>181–216</td><td>TLS handshake; extracts expiry date and issuer</td></tr>
+      <tr><td><code>make_check()</code></td><td>222–236</td><td>Constructs a single check result dict with status logic</td></tr>
+      <tr><td><code>grade_for(score)</code></td><td>239–243</td><td>Maps numeric score to A–F letter grade</td></tr>
+      <tr><td><code>build_checks()</code></td><td>246–304</td><td>Assembles all 7 checks from probe results</td></tr>
+      <tr><td><code>run_scan()</code></td><td>310–363</td><td>Top-level cached orchestrator; always returns a dict, never raises</td></tr>
+      <tr><td><code>APP_CSS</code></td><td>368–709</td><td>~340-line embedded stylesheet for dark cybersecurity theme</td></tr>
+      <tr><td><code>build_report()</code></td><td>710–723</td><td>Generates plain-text single-site report for download</td></tr>
+      <tr><td><code>build_compare_report()</code></td><td>726–750</td><td>Generates aligned columnar comparison report for download</td></tr>
+      <tr><td><code>show_results()</code></td><td>795–834</td><td>Renders grade badge, score bar, check cards, download button</td></tr>
+      <tr><td><code>show_comparison()</code></td><td>837–969</td><td>Side-by-side comparison UI with summary cards and check table</td></tr>
+      <tr><td><code>show_intro()</code></td><td>973–1057</td><td>Landing page: feature cards, how-it-works steps, scoring rubric</td></tr>
+      <tr><td><code>main()</code></td><td>1060–end</td><td>Streamlit entry point: page config, session state, tabs, routing</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2><span class="sec-num">11.</span> How to Run</h2>
+  <h3>Prerequisites</h3>
+  <ul>
+    <li>Python 3.9 or later (tested on 3.12)</li>
+    <li>pip</li>
+  </ul>
+  <h3>Installation</h3>
+  <div class="code-block">pip install -r requirements.txt</div>
+  <h3>Launch</h3>
+  <div class="code-block">python -m streamlit run code.py</div>
+  <p>The application starts at <strong>http://localhost:8501</strong> and opens automatically in the default browser. The server keeps running until the terminal window is closed.</p>
+  <h3>Project Files</h3>
+  <table>
+    <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>code.py</code></td><td>Entire application — safety guards, scan engine, scoring, and UI</td></tr>
+      <tr><td><code>requirements.txt</code></td><td>Python dependency list (streamlit, requests, pandas, reportlab)</td></tr>
+      <tr><td><code>README.md</code></td><td>Project overview, setup guide, and feature summary</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2><span class="sec-num">12.</span> Results &amp; Discussion</h2>
+  <p>
+    The tool successfully performs all seven checks within the 6-second timeout window for the vast majority
+    of responsive public websites. Key behavioural observations:
+  </p>
+  <ul>
+    <li><strong>HTTPS adoption:</strong> Most major websites (Google, GitHub, IBM) achieve full marks on HTTPS and certificate checks, earning A grades overall.</li>
+    <li><strong>Header gaps are common:</strong> CSP and HSTS are the most frequently missing headers, even on otherwise well-configured sites, and are the primary differentiator between A and B grades.</li>
+    <li><strong>X-Frame-Options equivalence:</strong> The tool correctly handles the modern pattern where <code>frame-ancestors</code> in a CSP replaces the older <code>X-Frame-Options</code> header, avoiding false failures.</li>
+    <li><strong>Caching effectiveness:</strong> The 120-second <code>@st.cache_data</code> cache significantly reduces redundant network calls when multiple users scan the same site within the window.</li>
+    <li><strong>SSRF protection:</strong> All tested attempts to scan private addresses (e.g. <code>192.168.1.1</code>, <code>localhost</code>) are correctly blocked with a user-friendly error message.</li>
+  </ul>
+
+  
+  <h2><span class="sec-num">13.</span> Conclusion &amp; Future Work</h2>
+  <p>
+    Website Security Checker delivers on its core goal: a zero-setup, browser-accessible tool that produces
+    an understandable, actionable security grade for any public website within seconds. Its layered safety
+    architecture ensures it cannot be weaponised against internal infrastructure, and its Streamlit-based UI
+    makes findings accessible to non-technical users.
+  </p>
+  <h3>Potential Future Enhancements</h3>
+  <ul>
+    <li><strong>Additional headers:</strong> Add checks for <code>Permissions-Policy</code>, <code>Referrer-Policy</code>, and <code>Cross-Origin-*</code> headers</li>
+    <li><strong>DNSSEC / CAA records:</strong> Extend DNS checks to include DNSSEC validation and Certification Authority Authorization records</li>
+    <li><strong>Email security:</strong> Add SPF, DKIM, and DMARC record checks for the scanned domain</li>
+    <li><strong>Historical tracking:</strong> Store scan results in a lightweight database to show grade trends over time</li>
+    <li><strong>PDF export:</strong> Utilise the existing <code>reportlab</code> dependency to generate a formatted PDF report in addition to the plain-text download</li>
+    <li><strong>API mode:</strong> Expose scan results as a JSON REST endpoint for CI/CD pipeline integration</li>
+    <li><strong>Rate limiting per IP:</strong> Move cooldown enforcement to server-side middleware for multi-user deployments</li>
+  </ul>
+
+  
+  <h2><span class="sec-num">14.</span> References</h2>
+  <ul>
+    <li>OWASP — <em>HTTP Security Response Headers Cheat Sheet</em>, owasp.org/www-project-cheat-sheets</li>
+    <li>MDN Web Docs — <em>HTTP Headers: Security</em>, developer.mozilla.org</li>
+    <li>RFC 6797 — <em>HTTP Strict Transport Security (HSTS)</em>, IETF</li>
+    <li>RFC 7034 — <em>HTTP Header Field X-Frame-Options</em>, IETF</li>
+    <li>W3C — <em>Content Security Policy Level 3</em>, w3.org/TR/CSP3</li>
+    <li>Python Software Foundation — <em>ssl — TLS/SSL wrapper for socket objects</em>, docs.python.org</li>
+    <li>Streamlit Inc. — <em>Streamlit Documentation</em>, docs.streamlit.io</li>
+  </ul>
+
+  <div class="report-footer">
+    Made with IBM Bob
+  </div>
+</div>
+</body>
+</html>

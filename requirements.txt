@@ -1,0 +1,11 @@
+# HTTP library for making API requests (e.g., IBM Watson, REST endpoints)
+requests
+
+# Web application framework for building interactive data apps and dashboards
+streamlit
+
+# Data manipulation and analysis library for tabular/CSV data processing
+pandas
+
+# PDF generation library for creating and exporting report documents
+reportlab
